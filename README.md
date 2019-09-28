@@ -18,7 +18,7 @@ __or__ install Anaconda 3.6 https://www.anaconda.com/download/
 2) Check if the python version is above 3 and 64 bit by typing in the command line 'python --version'
 
 3) Install the numpy and opencv libraries
-   * type 'python -m pip install -U vtk --user' !!! not tested, could be wrong
+   * type 'python -m pip install -U vtk --user' 
    * type 'python -m pip install -U numpy --user'
    * type 'python -m pip install -U opencv-python --user'
    
