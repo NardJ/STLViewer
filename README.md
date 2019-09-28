@@ -36,7 +36,7 @@ Usage: STLViewer.py file:'yourfile.stl' optional key:value
        Valid optional keys are 'auto':None,'size':width,height
        If no arguments present, first STL will be loaded
 
-Controls: [mouse-left]: rotate, [mouse-wheel/right]: zoom, 
-          [up]: change up vector, [space]: save screenshot
-          [s]: shrink to fit, [g]: grow to fit
-          [q],[esc]: quit viewer
+Controls: [mouse-left]: rotate, [mouse-wheel/right]: zoom,   
+          [up]: change up vector, [space]: save screenshot  
+          [s]: shrink to fit, [g]: grow to fit  
+          [q],[esc]: quit viewer  
