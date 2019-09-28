@@ -2,7 +2,7 @@
 Lightweight STLViewer for python3, using vtk, cv2, numpy
 
 ## Disclaimer
-STLViewer is alpha. There probably are bugs, the output files have not yet been tested on a real photon! Use at your own risk!
+STLViewer is alpha. There probably are bugs! Use at your own risk!
 
  ---
   
