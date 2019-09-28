@@ -6,6 +6,8 @@ import vtk
 import numpy
 import cv2
     
+# TODO: rotate model does not work nicely if up axis was wrong
+
 ################################################
 ### Print Manual
 ################################################
@@ -16,6 +18,7 @@ print ("       Valid optional keys are 'auto':None,'size':width,height")
 print ("       If no arguments present, first STL will be loaded")
 print ("")
 print ("Controls: [mouse-left]: rotate, [mouse-wheel/right]: zoom, ")
+print ("          [up]: change up vector, [down]: save screenshot")
 print ("          [up]: change up vector, [space]: save screenshot")
 print ("          [a]: shrink to fit screen, [q],[esc]: quit viewer")
 print ("")
@@ -96,7 +99,7 @@ if 'size' in args:
     quit()
   w,h=int(size[0]),int(size[1])
 else:
-  w,h=480,320
+  w,h=240,240
 
 ###################################################
 
@@ -107,7 +110,8 @@ def fitImage():
     global campos,camfoc,camup,camera,ren,renWin
 
     while not isFitImage():
-      campos[0]=campos[0]*1.2
+      campos[0]=campos[0]*1.1
+      campos[1]=campos[1]*1.1
       camera=vtk.vtkCamera()
       camera.SetViewUp(camup)
       camera.SetFocalPoint(camfoc)
@@ -167,6 +171,7 @@ def makePrintScreen():
 
 camIdx=0
 camUp=[(0,1,0),(1,0,0),(0,0,1),(0,-1,0),(-1,0,0),(0,0,-1)]
+camDirIdx=0
 def keypress_callback(obj, ev):
     global idx,nfilename,reader,renWin,ren,camPos,camIdx
     key = obj.GetKeySym()
@@ -210,7 +215,20 @@ def keypress_callback(obj, ev):
       camera.SetPosition(campos)
       ren.SetActiveCamera(camera)
       renWin.Render()           
-
+    if key=='KP_Down' or key=="Down":
+      global camDirIdx
+      camDirIdx=camDirIdx+1
+      if camDirIdx>3: camDirIdx=0
+      if camDirIdx==1: campos[1]=-campos[1]
+      if camDirIdx==2: campos[0]=-campos[0]
+      if camDirIdx==3: campos[1]=-campos[1]
+      if camDirIdx==0: campos[0]=-campos[0]
+      camera=vtk.vtkCamera()
+      camera.SetViewUp(camup)
+      camera.SetFocalPoint(camfoc)
+      camera.SetPosition(campos)
+      ren.SetActiveCamera(camera)
+      renWin.Render()           
 
 campos=[0,0,0]    
 camfoc=[0,0,0]
@@ -257,7 +275,7 @@ def loadFile():
     dY=bnds[3]-bnds[2]
     dZ=bnds[5]-bnds[4]
     #sC=1.5*max(dY,dZ)+1.75*dX
-    sC=2*dZ
+    sC=1.4*dZ
     #print ('%.2f' % dX,'%.2f' % dY,'%.2f' % dZ,"->",'%.2f' % sC)
 
     camera=vtk.vtkCamera()
@@ -267,8 +285,8 @@ def loadFile():
     camfoc=[mX,mY,mZ]
     #sC is not enough, a fatter object is closer to the cam.
     #camera.SetPosition(sC+2.5*dX/2,0,mZ)
-    camera.SetPosition(sC,0,mZ)
-    campos=[sC,0,mZ]
+    campos=[sC,-sC,mZ]
+    camera.SetPosition(campos)
     #print (camera.GetOrientation())
     ren.SetActiveCamera(camera)
 
@@ -281,6 +299,7 @@ def loadFile():
 
 # Create a rendering window and renderer
 renWin = vtk.vtkRenderWindow()
+renWin.SetWindowName("STLViewer")
 renWin.SetSize(w,h)
 ren = vtk.vtkRenderer()
 reader=None;
