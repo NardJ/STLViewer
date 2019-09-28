@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-#TODO
-# 1) T to turn other axis up
-# 2) command line arg Make screenshots of entire directory
-# 3) command line arg to set window size
 import sys
 import os
 
@@ -17,10 +13,11 @@ print ("STLViewer v0.1 (python3)")
 print ("")
 print ("Usage: STLViewer.py file:'yourfile.stl' optionalkey:value")
 print ("       Valid optional keys are 'auto':None,'size':width,height")
+print ("       If no arguments present, first STL will be loaded")
 print ("")
 print ("Controls: [mouse-left]: rotate, [mouse-wheel/right]: zoom, ")
 print ("          [up]: change up vector, [space]: save screenshot")
-print ("          [a]: shrink to fit screen")
+print ("          [a]: shrink to fit screen, [q],[esc]: quit viewer")
 print ("")
 
 ################################################
@@ -29,11 +26,31 @@ print ("")
 
 filename='.'
 argsList=sys.argv[1:]
-args={}
-if len(argsList)==0:
-    print ("Usage: STLViewer.py file:'yourfile.stl' optionalkey:value \nValid keys are 'file','auto','size'")
-    quit()
 
+# If we have not command line arguments we display all stl files (if present)
+otherfiles=[]
+if len(argsList)==0:
+  filepath=os.getcwd()
+  for file in os.listdir(filepath):  
+      name, ext = os.path.splitext(file)
+      if ext.lower()==".stl":
+        otherfiles.append(file)  
+  otherfiles=sorted(otherfiles)
+  # Quit if no STL files found
+  if len(otherfiles)==0:
+      print ("No STL files found to display.")
+      quit()
+  argsList=["file:"+otherfiles[0],]
+
+# If we only have a filename as argument (without key 'file:') 
+# which is format used by OS to open viewer for selected file in fileexplorer
+if len(argsList)==1 and not ":" in argsList[0]:
+  print (argsList)
+  argsList=["file:"+argsList[0],]
+  print (argsList)
+
+# Otherwise we have a full command line, so we split arguments
+args={}
 for argItem in argsList:
   if not ":" in argItem:
     print ("Arguments must have key! \nE.g. 'file:myfile.stl'\nValid keys are 'file','auto','size'")
@@ -43,15 +60,18 @@ for argItem in argsList:
   args[argKey]=argVal
   #print (argItem,argKey,argVal)  
 
+# If file is missing we quit
 if not 'file' in args:
   print ("Please specify file.")
   quit()
 
+# If invalid filename we quit
 filename=args['file']
 if not os.path.isfile(filename):
   print ("File not found.")
   quit()
 
+# Create list of other files so we can navigate
 absfilename=os.path.abspath(filename)
 filepath=os.path.split(filename)[0]
 if filepath in ('','.'):
@@ -68,6 +88,7 @@ otherfiles=sorted(otherfiles)
 idx=otherfiles.index(os.path.split(filename)[1])
 last_idx=len(otherfiles)-1
 
+# Extract window size if specified
 if 'size' in args:
   size=args['size'].split(',')
   if len(size)!=2:
@@ -75,7 +96,7 @@ if 'size' in args:
     quit()
   w,h=int(size[0]),int(size[1])
 else:
-  w,h=640,480
+  w,h=480,320
 
 ###################################################
 
