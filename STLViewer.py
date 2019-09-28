@@ -195,7 +195,7 @@ def keypress_callback(obj, ev):
         loadFile()
         print ("Load next file - idx:",idx,nfilename)
     if key=='space': 
-      print ("Save print screen of ",idx,filename) 
+      print ("Save print screen of ",idx,nfilename) 
       makePrintScreen()
     if key=='Escape': quit()
     if key=='a':
