@@ -1,4 +1,4 @@
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
-python3 "$SCRIPTPATH/STLViewer.py" "$1"
+python3 "$SCRIPTPATH/STLViewer.py" file:"$1"
 
 

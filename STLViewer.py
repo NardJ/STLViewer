@@ -13,16 +13,28 @@ import cv2
 ################################################
 print ("STLViewer v0.1 (python3)")
 print ("")
-print ("Usage: STLViewer.py file:'yourfile.stl' optionalkey:value")
-print ("       Valid optional keys are 'auto':None,'size':width,height")
-print ("       If no arguments present, first STL will be loaded")
+print ("Arguments: no arguments will open current dir and default size")
+print ("           valid arguments: 'file:[yourfile.stl]' OR 'dir:[yourdir]'")
+print ("                            'size:[width],[height]' for windowsize" )
+print ("                            'auto' to autoscan dir and save png's" )
 print ("")
 print ("Controls: [mouse-left]: rotate, [mouse-wheel/right]: zoom, ")
-print ("          [up]: change up vector, [down]: save screenshot")
-print ("          [up]: change up vector, [space]: save screenshot")
+print ("          [up]: change up vector, [down]: rotate model")
 print ("          [s]: shrink to fit, [g]: grow to fit")
-print ("          [q],[esc]: quit viewer")
+print ("          [space]: save screenshot, [q],[esc]: quit viewer")
 print ("")
+
+# STLViewer.py 
+#               [no arguments] -> show all files
+#               /home/test.stl
+
+#               dir:/home
+#               file:/home/test.stl
+#               dir:/home size:240,240
+
+#               auto
+#               auto size:240,240
+#               dir:/home auto
 
 ################################################
 ### GET all input values like filepath and derive working dir
@@ -31,81 +43,64 @@ print ("")
 filename='.'
 argsList=sys.argv[1:]
 
-# If we have not command line arguments we display all stl files (if present)
-otherfiles=[]
-if len(argsList)==0:
-  filepath=os.getcwd()
-  for file in os.listdir(filepath):  
-      name, ext = os.path.splitext(file)
-      if ext.lower()==".stl":
-        otherfiles.append(file)  
-  otherfiles=sorted(otherfiles)
-  # Quit if no STL files found
-  if len(otherfiles)==0:
-      print ("No STL files found to display.")
+# Get dir where we show files from
+filepath=os.getcwd()
+for arg in argsList:
+  if 'dir:' in arg:
+    key,val=arg.split(':')
+    if not os.path.isdir(val):
+      print ("Directory is not a valid path")
       quit()
-  argsList=["file:"+otherfiles[0],]
+    filepath=os.path.abspath(val)
+  if 'file:' in arg:
+    key,val=arg.split(':')
+    if not os.path.isfile(val):
+      print ("File is not found")
+      quit()
+    absfilename=os.path.abspath(val)
+    filepath=os.path.split(absfilename)[0]
 
-# If we only have a filename as argument (without key 'file:') 
-# which is format used by OS to open viewer for selected file in fileexplorer
-if len(argsList)==1 and not ":" in argsList[0]:
-  #print (argsList)
-  argsList=["file:"+argsList[0]]
-  #print (argsList)
-
-# Otherwise we have a full command line, so we split arguments
-args={}
-for argItem in argsList:
-  if not ":" in argItem:
-    print ("Arguments must have key! \nE.g. 'file:myfile.stl'\nValid keys are 'file','auto','size'")
-    quit()
-  argKey=argItem.split(":")[0]
-  argVal=argItem.split(":")[1]
-  args[argKey]=argVal
-  #print (argItem,argKey,argVal)  
-
-# If file is missing we quit
-if not 'file' in args:
-  print ("Please specify file.")
-  quit()
-
-# If invalid filename we quit
-filename=args['file']
-if not os.path.isfile(filename):
-  print ("File not found.")
-  quit()
-
-# Create list of other files so we can navigate
-absfilename=os.path.abspath(filename)
-filepath=os.path.split(filename)[0]
-if filepath in ('','.'):
-  filepath=os.getcwd()
-
-otherfiles=[] 
+# Get STL files in found dir
+otherfiles=[]
 for file in os.listdir(filepath):  
     name, ext = os.path.splitext(file)
     if ext.lower()==".stl":
-      otherfiles.append(file)
-
+      otherfiles.append(file)  
 otherfiles=sorted(otherfiles)
-
-idx=otherfiles.index(os.path.split(filename)[1])
 last_idx=len(otherfiles)-1
 
+# Check if files in dir
+if len(otherfiles)==0:
+      print ("No STL files found to display.")
+      quit()
+
+# Check if file key used
+idx=0
+for arg in argsList:
+  if 'file:' in arg:
+    filename=arg.split(':')[1]
+    idx=otherfiles.index(os.path.split(filename)[1])
+
 # Extract window size if specified
-if 'size' in args:
-  size=args['size'].split(',')
-  if len(size)!=2:
-    print ("'size' value should have format 'width,height', e.g. '320,240'.")
-    quit()
-  w,h=int(size[0]),int(size[1])
-else:
-  w,h=240,240
+w,h=240,240
+for arg in argsList:
+  if 'size:' in arg:
+    size=arg.split(':')[1].split(',')
+    if len(size)!=2:
+      print ("'size' value should have format 'width,height', e.g. '320,240'.")
+      quit()
+    w,h=int(size[0]),int(size[1])
+
+# Check if we are in automatic screenshot mode
+auto=False
+for arg in argsList:
+  if 'auto' in arg:
+    auto=True
 
 ###################################################
 
 print ("Load init file - idx:",idx,otherfiles[idx])
-nfilename=os.path.join(filepath,otherfiles[idx])
+nfilename=otherfiles[idx]
 
 def growImage():
     global campos,camfoc,camup,camera,ren,renWin
@@ -263,7 +258,7 @@ def loadFile():
     renWin.Render()
 
     reader = vtk.vtkSTLReader()
-    reader.SetFileName(nfilename)
+    reader.SetFileName(os.path.join(filepath,nfilename))
     
     mapper = vtk.vtkPolyDataMapper()
     if vtk.VTK_MAJOR_VERSION <= 5:
@@ -282,6 +277,8 @@ def loadFile():
 
     ren.AddActor(actor)
     #iren.Initialize()
+    
+    addText("")
 
     # Set camera up
     #camera=ren.GetActiveCamera()
@@ -295,6 +292,7 @@ def loadFile():
     #sC=1.5*max(dY,dZ)+1.75*dX
     sC=1.4*dZ
     #print ('%.2f' % dX,'%.2f' % dY,'%.2f' % dZ,"->",'%.2f' % sC)
+    #changeText(str())
 
     camera=vtk.vtkCamera()
     camera.SetViewUp(0,0,1)
@@ -322,6 +320,22 @@ renWin.SetSize(w,h)
 ren = vtk.vtkRenderer()
 reader=None;
 
+# Create a debug message actor
+txt=None
+def addText(msg="Hello world!"):
+  global txt
+  txt = vtk.vtkTextActor()
+  txt.SetInput(msg)
+  txtprop=txt.GetTextProperty()
+  txtprop.SetFontFamilyToArial()
+  txtprop.SetFontSize(18)
+  txtprop.SetColor(250,1,1)
+  txt.SetDisplayPosition(10,10)
+  ren.AddActor(txt)
+def changeText(msg="New text!"):
+  global txt
+  txt.SetInput(msg)
+
 # Create a renderwindowinteractor
 iren = vtk.vtkRenderWindowInteractor()
 iren.AddObserver('KeyPressEvent', keypress_callback, 1.0)
@@ -331,7 +345,7 @@ iren.SetRenderWindow(renWin)
 # Assign actor to the renderer
 actor=None
 
-if 'auto' in args:
+if auto:
   iren.Initialize()
   for idx in range(0,last_idx):
     nfilename=otherfiles[idx]
