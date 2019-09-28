@@ -2,12 +2,12 @@
 Lightweight STLViewer for python3, using vtk, cv2, numpy
 
 ## Disclaimer
-FileMerger is alpha. There probably are bugs, the output files have not yet been tested on a real photon! Use at your own risk!
+STLViewer is alpha. There probably are bugs, the output files have not yet been tested on a real photon! Use at your own risk!
 
  ---
   
 ## Installation
-You can run FileMerger in Windows, OSX(not tested) and Linux. Your OS must be 64 bit. 
+You can run STLViewer in Windows, OSX(not tested) and Linux. Your OS must be 64 bit. 
 There is no binary release so you have to install Python3-64bit.
 
 0) Download the source code in zip or tar.gz.
@@ -32,9 +32,10 @@ __or__ install Anaconda 3.6 https://www.anaconda.com/download/
   
   
 ## Manual
-Usage: STLViewer.py file:'yourfile.stl' optionalkey:value
+Usage: STLViewer.py file:'yourfile.stl' optional key:value
        Valid optional keys are 'auto':None,'size':width,height
+       If no arguments present, first STL will be loaded
 
 Controls: [mouse-left]: rotate, [mouse-wheel/right]: zoom, 
           [up]: change up vector, [space]: save screenshot
-          [a]: shrink to fit screen
+          [a]: shrink to fit screen, [q],[esc]: quit viewer
