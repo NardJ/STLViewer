@@ -20,7 +20,8 @@ print ("")
 print ("Controls: [mouse-left]: rotate, [mouse-wheel/right]: zoom, ")
 print ("          [up]: change up vector, [down]: save screenshot")
 print ("          [up]: change up vector, [space]: save screenshot")
-print ("          [a]: shrink to fit screen, [q],[esc]: quit viewer")
+print ("          [s]: shrink to fit, [g]: grow to fit")
+print ("          [q],[esc]: quit viewer")
 print ("")
 
 ################################################
@@ -48,9 +49,9 @@ if len(argsList)==0:
 # If we only have a filename as argument (without key 'file:') 
 # which is format used by OS to open viewer for selected file in fileexplorer
 if len(argsList)==1 and not ":" in argsList[0]:
-  print (argsList)
-  argsList=["file:"+argsList[0],]
-  print (argsList)
+  #print (argsList)
+  argsList=["file:"+argsList[0]]
+  #print (argsList)
 
 # Otherwise we have a full command line, so we split arguments
 args={}
@@ -105,6 +106,20 @@ else:
 
 print ("Load init file - idx:",idx,otherfiles[idx])
 nfilename=os.path.join(filepath,otherfiles[idx])
+
+def growImage():
+    global campos,camfoc,camup,camera,ren,renWin
+
+    while isFitImage():
+      campos[0]=campos[0]/1.1
+      campos[1]=campos[1]/1.1
+      camera=vtk.vtkCamera()
+      camera.SetViewUp(camup)
+      camera.SetFocalPoint(camfoc)
+      camera.SetPosition(campos)
+      ren.SetActiveCamera(camera)
+      renWin.Render()
+    fitImage()
 
 def fitImage():
     global campos,camfoc,camup,camera,ren,renWin
@@ -198,9 +213,12 @@ def keypress_callback(obj, ev):
       print ("Save print screen of ",idx,nfilename) 
       makePrintScreen()
     if key=='Escape': quit()
-    if key=='a':
-      print ("Fit image")
+    if key=='s':
+      print ("Shrink to fit image")
       fitImage()
+    if key=='g':
+      print ("Grow to fit image")
+      growImage()
     if key=='KP_Up' or key=="Up":
       print ("Change up vector")
       global campos,camfoc,camup,camera,ren,renWin
