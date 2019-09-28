@@ -32,11 +32,18 @@ __or__ install Anaconda 3.6 https://www.anaconda.com/download/
   
   
 ## Manual
-Usage: STLViewer.py file:'yourfile.stl' optional key:value  
-       Valid optional keys are 'auto':None,'size':width,height  
-       If no arguments present, first STL will be loaded  
-
-Controls: [mouse-left]: rotate, [mouse-wheel/right]: zoom,   
-          [up]: change up vector, [space]: save screenshot  
-          [s]: shrink to fit, [g]: grow to fit  
-          [q],[esc]: quit viewer  
+Arguments: 
+- no arguments will open current dir and default size  
+- 'file:{yourfile.stl}' OR 'dir:{yourdir}'     
+- 'size:{width},{height}' for windowsize  
+- 'auto' to autoscan dir and save png's  
+  
+Controls: 
+- {left mousebutton} and drag: rotate
+- {mouse wheel}: zoom
+- {right mousebutton} and drag: zoom
+- {up}: change up vector
+- {down}: rotate model    
+- {s}: shrink to fit, [g]: grow to fit  
+- {space}: save screenshot
+- {q},{esc}: quit viewer
