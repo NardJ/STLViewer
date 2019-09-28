@@ -38,4 +38,5 @@ Usage: STLViewer.py file:'yourfile.stl' optional key:value
 
 Controls: [mouse-left]: rotate, [mouse-wheel/right]: zoom, 
           [up]: change up vector, [space]: save screenshot
-          [a]: shrink to fit screen, [q],[esc]: quit viewer
+          [s]: shrink to fit, [g]: grow to fit
+          [q],[esc]: quit viewer
