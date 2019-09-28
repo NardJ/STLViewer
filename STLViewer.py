@@ -24,18 +24,6 @@ print ("          [s]: shrink to fit, [g]: grow to fit")
 print ("          [space]: save screenshot, [q],[esc]: quit viewer")
 print ("")
 
-# STLViewer.py 
-#               [no arguments] -> show all files
-#               /home/test.stl
-
-#               dir:/home
-#               file:/home/test.stl
-#               dir:/home size:240,240
-
-#               auto
-#               auto size:240,240
-#               dir:/home auto
-
 ################################################
 ### GET all input values like filepath and derive working dir
 ################################################
@@ -66,7 +54,7 @@ for file in os.listdir(filepath):
     name, ext = os.path.splitext(file)
     if ext.lower()==".stl":
       otherfiles.append(file)  
-otherfiles=sorted(otherfiles)
+otherfiles=sorted(otherfiles,key=str.lower)
 last_idx=len(otherfiles)-1
 
 # Check if files in dir
@@ -256,6 +244,7 @@ def loadFile():
     loading=True
     ren.SetBackground(1,0,0)
     renWin.Render()
+    renWin.SetWindowName("STLViewer - loading...")
 
     reader = vtk.vtkSTLReader()
     reader.SetFileName(os.path.join(filepath,nfilename))
@@ -308,6 +297,7 @@ def loadFile():
 
     fitImage()
 
+    renWin.SetWindowName("STLViewer - "+nfilename.split('.')[-2])
     ren.SetBackground(0,0,0)
     renWin.Render()
 
